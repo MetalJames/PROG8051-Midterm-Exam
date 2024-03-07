@@ -55,8 +55,10 @@ public class InventoryItem
     // Print item details
     public void PrintDetails()
     {
+        // Format the price so it look proper
+        string formattedPrice = Price.ToString("0.00");
         // TODO: Print the details of the item (name, id, price, and stock quantity).
-        Console.WriteLine($"Details of the {ItemName}: \nname: {ItemName}; \nid: {ItemId}; \nprice: {Price}; \nin stock: {QuantityInStock}");
+        Console.WriteLine($"Details of the {ItemName}: \nname: {ItemName}; \nid: {ItemId}; \nprice: {formattedPrice} Cad; \nin stock: {QuantityInStock}");
     }
 }
 class Program
@@ -84,18 +86,19 @@ class Program
             Console.WriteLine("2. Sell items.");
             Console.WriteLine("3. Restock an item.");
             Console.WriteLine("4. Check if an item is in stock.");
-            Console.WriteLine("5. Exit.");
+            Console.WriteLine("5. Update item price.");
+            Console.WriteLine("6. Exit.");
             Console.WriteLine();
 
             // Get customer choice
-            Console.Write("Enter your choice (1-5): ");
+            Console.Write("Enter your choice (1-6): ");
 
             // This will prevent the program from crashing if the user enters anything else besides 1-5 (character or any special character)
             bool validActionInput = int.TryParse(Console.ReadLine(), out int choiceAction);
 
-            if (!validActionInput || choiceAction < 1 || choiceAction > 5)
+            if (!validActionInput || choiceAction < 1 || choiceAction > 6)
             {
-                Console.WriteLine("Invalid input. Please enter a number between 1 and 5.");
+                Console.WriteLine("Invalid input. Please enter a number between 1 and 6.");
                 continue;
             }
 
@@ -141,27 +144,45 @@ class Program
                             }
                             if (choiceSell == 1)
                             {
-                                if (quantitySell > item1.QuantityInStock)
+                                if (item1.QuantityInStock == 0)
+                                {
+                                    Console.WriteLine($"Sorry, we out of stock for this {item1.ItemName}");
+                                    Console.WriteLine();
+                                    break;
+                                }
+                                else if (quantitySell > item1.QuantityInStock)
                                 {
                                     Console.WriteLine("Sorry, we don't have that many items.");
+                                    Console.WriteLine();
                                     continue; // We stay in the same menu if the quantity is invalid
                                 }
-                                item1.SellItem(quantitySell);
-                                Console.WriteLine();
-                                item1.PrintDetails();
-                                Console.WriteLine();
+                                else
+                                {
+                                    item1.SellItem(quantitySell);
+                                    Console.WriteLine();
+                                    item1.PrintDetails();
+                                    Console.WriteLine();
+                                }
                             }
                             else if (choiceSell == 2)
                             {
-                                if (quantitySell > item2.QuantityInStock)
+                                if (item2.QuantityInStock == 0)
+                                {
+                                    Console.WriteLine($"Sorry, we out of stock for this {item1.ItemName}");
+                                    break;
+                                }
+                                else if (quantitySell > item2.QuantityInStock)
                                 {
                                     Console.WriteLine("Sorry, we don't have that many items.");
                                     continue; // We stay in the same menu if the quantity is invalid
                                 }
-                                item2.SellItem(quantitySell);
-                                Console.WriteLine();
-                                item2.PrintDetails();
-                                Console.WriteLine();
+                                else
+                                {
+                                    item2.SellItem(quantitySell);
+                                    Console.WriteLine();
+                                    item2.PrintDetails();
+                                    Console.WriteLine();
+                                }
                             }
                             break;
                         }
@@ -227,6 +248,51 @@ class Program
                     Console.WriteLine();
                     break;
                 case 5:
+                    Console.WriteLine("Update Item Price:");
+                    Console.WriteLine($"1. {item1.ItemName}");
+                    Console.WriteLine($"2. {item2.ItemName}");
+                    Console.WriteLine();
+                    Console.Write("Enter your choice (1-2): ");
+                    Console.WriteLine();
+
+                    //we stay here until we get correct restock quantity
+                    while (true)
+                    {
+                        bool validPrice = int.TryParse(Console.ReadLine(), out int choicePrice);
+                        if (!validPrice || choicePrice < 1 || choicePrice > 2)
+                        {
+                            Console.WriteLine("Invalid input. Please enter 1 or 2.");
+                            continue;
+                        }
+                        //we stay here until we get correct restock quantity
+                        while (true)
+                        {
+                            Console.WriteLine($"Enter new item price {(choicePrice == 1 ? item1.ItemName : item2.ItemName)}: ");
+                            if (!double.TryParse(Console.ReadLine(), out double newPrice))
+                            {
+                                Console.WriteLine("Invalid input. Please enter a valid price.");
+                                continue;
+                            }
+                            if (choicePrice == 1)
+                            {
+                                item1.UpdatePrice(newPrice);
+                                Console.WriteLine();
+                                item1.PrintDetails();
+                                Console.WriteLine();
+                            }
+                            else if (choicePrice == 2)
+                            {
+                                item2.UpdatePrice(newPrice);
+                                Console.WriteLine();
+                                item2.PrintDetails();
+                                Console.WriteLine();
+                            }
+                            break;
+                        }
+                        break;
+                    }
+                    break;
+                case 6:
                     customerInteraction = false;
                     Console.WriteLine("Thanks for choosing us. \nHave a great day!");
                     Console.WriteLine();
